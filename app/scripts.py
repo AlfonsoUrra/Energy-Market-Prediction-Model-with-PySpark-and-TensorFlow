@@ -15,14 +15,16 @@ st.header("Predicting the price of electricity")
 
 
 # Relative route to the CSV file
-csv_file = "../data/df_scripts.csv"  
+csv_file = "../data/df_yearly_prices.csv"  
 
 
 try:
     df = pd.read_csv(csv_file)
+    df['datetime'] = pd.to_datetime(df['datetime'], utc=True)
+    df['datetime'] = df['datetime'].dt.tz_localize(None)
 
-    # Date range filter
-    df['datetime'] = pd.to_datetime(df['datetime'])
+    
+
     min_date = df['datetime'].min()
     max_date = df['datetime'].max()
 
@@ -70,15 +72,15 @@ try:
 
 
 
-    avg_day = df_predictions.groupby('Date')['Prediction'].mean().reset_index()
-    monthly_avg = df_predictions.groupby(df_predictions['Date'].dt.month)['Prediction'].mean().reset_index()
+        avg_day = df_predictions.groupby('Date')['Prediction'].mean().reset_index()
+        monthly_avg = df_predictions.groupby(df_predictions['Date'].dt.month)['Prediction'].mean().reset_index()
 
     fig, ax = plt.subplots()
     ax.scatter(avg_day["Date"], avg_day['Prediction'])
     ax.set_xlabel('Date')
     ax.set_ylabel('Price')
     ax.set_title('Average price')
-        
+                
     plt.xticks(rotation=45)
     st.subheader("Scatter plot graph:")
     st.pyplot(fig)
@@ -88,12 +90,3 @@ except FileNotFoundError:
 except Exception as e:
     st.write("Error while loading the file:", str(e))
 
-df_predictions_min = df_predictions['Prediction'].min()
-df_predictions_max = df_predictions['Prediction'].max()
-df_predictions_mean = df_predictions['Prediction'].mean()
-df_predictions_median = df_predictions['Prediction'].median()
-df_predictions_std = df_predictions['Prediction'].std()
-st.write("Media:", df_predictions_mean)
-st.write("Mediana:", df_predictions_median)
-st.write("Mínimo:", df_predictions_min)
-st.write("Máximo:", df_predictions_max)
